@@ -1,38 +1,8 @@
-let board = [];
-
+/* Outputs shortest path from start position to goal position and
+number of moves needed to get there.
+The path is found using Breadth First Search Algoritm. */
 function knightMoves(start, goal) {
-  for (let r = 0; r < 8; r++) {
-    board.push([]);
-    for (let c = 0; c < 8; c++) {
-      board[r].push([]);
-    }
-  }
-
-  let queue = [];
-  queue.push(start);
-
-  while (queue.length !== 0) {
-    const current = queue.shift();
-
-    const result = nextMove(current, goal);
-    if (result === goal) {
-      const path = getPath(start, goal);
-
-      console.log(`You made it in ${path.length - 1} moves! Here's your path:`);
-      path.forEach((move) => console.log(move));
-      return;
-    }
-
-    queue = queue.concat(result);
-  }
-}
-
-function nextMove(startPosition, goal) {
-  const x = startPosition[0];
-  const y = startPosition[1];
-  const goalX = goal[0];
-  const goalY = goal[1];
-
+  const [goalX, goalY] = goal;
   const moves = [
     [-2, 1],
     [-1, 2],
@@ -44,31 +14,47 @@ function nextMove(startPosition, goal) {
     [2, -1],
   ];
 
+  //stores chess board (8x8)
+  let board = Array.from({ length: 8 }, () => Array(8).fill(null));
+
   let queue = [];
+  queue.push(start);
 
-  for (let i = 0; i < moves.length; i++) {
-    const move = moves[i];
+  /*Loops over the queue of board fields to make moves on until the queue is empty.
+  On every iteration of the loop, first element in the queue if dequeued,
+  the board is filled with possible moves from the current field and its child moves are enqueued,
+  unless the goal position is reached. */
+  while (queue.length !== 0) {
+    const current = queue.shift();
+    const [currentX, currentY] = current;
 
-    const newX = x + move[0];
-    const newY = y + move[1];
+    if (currentX === goalX && currentY === goalY) {
+      const path = getPath(start, goal, board);
 
-    if (
-      newX >= 0 &&
-      newX <= 7 &&
-      newY >= 0 &&
-      newY <= 7 &&
-      board[newX][newY].length === 0
-    ) {
-      board[newX][newY] = [x, y];
-      if (newX === goalX && newY === goalY) return goal;
-      queue.push([newX, newY]);
+      console.log(`You made it in ${path.length - 1} moves! Here's your path:`);
+      path.forEach((move) => console.log(move));
+      return;
+    }
+
+    for (let i = 0; i < moves.length; i++) {
+      const move = moves[i];
+
+      const newX = currentX + move[0];
+      const newY = currentY + move[1];
+
+      if (isWithinBoard(newX, newY) && board[newX][newY].length === 0) {
+        board[newX][newY] = [currentX, currentY];
+        queue.push([newX, newY]);
+      }
     }
   }
-
-  return queue;
 }
 
-function getPath(startPosition, current) {
+function isWithinBoard(x, y) {
+  return x >= 0 && x <= 7 && y >= 0 && y <= 7;
+}
+
+function getPath(startPosition, current, board) {
   let path = [];
 
   while (
@@ -83,4 +69,4 @@ function getPath(startPosition, current) {
   return path;
 }
 
-knightMoves([3, 3], [4, 3]);
+knightMoves([0, 0], [7, 7]);
