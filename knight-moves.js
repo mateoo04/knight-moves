@@ -17,32 +17,28 @@ function knightMoves(start, goal) {
   //stores chess board (8x8)
   let board = Array.from({ length: 8 }, () => Array(8).fill(null));
 
-  let queue = [];
-  queue.push(start);
+  let queue = [start];
 
-  /*Loops over the queue of board fields to make moves on until the queue is empty.
+  /*Loops over the queue of board positions to make moves on until the queue is empty.
   On every iteration of the loop, first element in the queue if dequeued,
-  the board is filled with possible moves from the current field and its child moves are enqueued,
+  the board is filled with possible moves from the current position and its child moves are enqueued,
   unless the goal position is reached. */
   while (queue.length !== 0) {
     const current = queue.shift();
     const [currentX, currentY] = current;
 
+    //Checks if current postion is the goal postion
     if (currentX === goalX && currentY === goalY) {
-      const path = getPath(start, goal, board);
-
-      console.log(`You made it in ${path.length - 1} moves! Here's your path:`);
-      path.forEach((move) => console.log(move));
+      showShortestPath(start, goal, board);
       return;
     }
 
-    for (let i = 0; i < moves.length; i++) {
-      const move = moves[i];
+    //Fills the board with all possible moves from the current position
+    for (const [moveX, moveY] of moves) {
+      const newX = currentX + moveX;
+      const newY = currentY + moveY;
 
-      const newX = currentX + move[0];
-      const newY = currentY + move[1];
-
-      if (isWithinBoard(newX, newY) && board[newX][newY].length === 0) {
+      if (isWithinBoard(newX, newY) && board[newX][newY] === null) {
         board[newX][newY] = [currentX, currentY];
         queue.push([newX, newY]);
       }
@@ -50,23 +46,29 @@ function knightMoves(start, goal) {
   }
 }
 
+//Checks if an (x,y) position is within the board limits
 function isWithinBoard(x, y) {
   return x >= 0 && x <= 7 && y >= 0 && y <= 7;
 }
 
-function getPath(startPosition, current, board) {
+//traces path from the final to start position
+function showShortestPath(start, current, board) {
   let path = [];
 
   while (
     path.length === 0 ||
-    path[0][0] !== startPosition[0] ||
-    path[0][1] !== startPosition[1]
+    path[0][0] !== start[0] ||
+    path[0][1] !== start[1]
   ) {
     path.unshift(current);
+
+    //Each item(position) of the board 2d array contains coordinates of the previous position of the path
     current = board[current[0]][current[1]];
   }
 
-  return path;
+  console.log(`You made it in ${path.length - 1} moves! Here's your path:`);
+  path.forEach((move) => console.log(move));
 }
 
+knightMoves([0, 0], [6, 5]);
 knightMoves([0, 0], [7, 7]);
